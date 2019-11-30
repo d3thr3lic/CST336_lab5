@@ -44,18 +44,26 @@ getRandomImages: function(keyword, imageCount){
     
     return new Promise(function(resolve, reject){
         request(requestURL, function (error, response, body) {
+            var imageURLs = [];
             if (!error) {
                 var parsedData = JSON.parse(body);
-                //console.log("image url:", parsedData["urls"]["regular"]);
-                var imageURLs = [];
-                for (let i = 0; i < imageCount; i++){
-                    imageURLs.push(parsedData[i].urls.regular);
-                }
-                //console.log(imageURLs);
+                var errorParsedData = JSON.parse('{"errors:":["No photos found."]}');
                 
-                //return imageURLs;
-                //callback(imageURLs);
-                resolve(imageURLs);
+                if (parsedData.error == "No Photos Found."){
+                    alert("Invalid search");
+                }else {
+                    if(imageURLs != null && parsedData[0].urls.regular != errorParsedData){
+                        //console.log("image url:", parsedData["urls"]["regular"]);
+                        for (let i = 0; i < imageCount; i++){
+                            imageURLs.push(parsedData[i].urls.regular);
+                        }
+                        //console.log(imageURLs);
+                        
+                        //return imageURLs;
+                        //callback(imageURLs);
+                        resolve(imageURLs);
+                    }
+                }
             }else {
                 console.log("error", error);
             }
