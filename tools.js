@@ -1,89 +1,82 @@
 const request = require('request');
 const mysql = require('mysql');
 
-module.exports = {
-    
-/**
- * Return random image URLs from an API
- * @param string keyword - search term
- * @param int imageCount - number of random imaes
- * @return array of image URLs
- */
-getRandomImages_cb: function (keyword, imageCount, callback){
-    var requestURL = "https://api.unsplash.com/photos/random?query="+keyword+"&count="+imageCount+"&client_id=350da2e9928b6801d2800e6135025b932dd9e408d07c90fb056d1f07a0c289bd";
-    request(requestURL, function (error, response, body) {
-        if (!error) {
-            var parsedData = JSON.parse(body);
-            //console.log("image url:", parsedData["urls"]["regular"]);
-            var imageURLs = [];
-            for (let i = 0; i < 9; i++){
-                imageURLs.push(parsedData[i].urls.regular);
-            }
-            //console.log(imageURLs);
-            
-            //return imageURLs;
-            callback(imageURLs);
-        }else {
-            console.log("error", error);
-        }
-        
-    });
-},
+module.exports = { 
 
-
-
-
-/**
- * Return random image URLs from an API
- * @param string keyword - search term
- * @param int imageCount - number of random imaes
- * @return array of image URLs
- */
-getRandomImages: function(keyword, imageCount){
-    var requestURL = "https://api.unsplash.com/photos/random?query="+keyword+"&count="+imageCount+"&client_id=350da2e9928b6801d2800e6135025b932dd9e408d07c90fb056d1f07a0c289bd";
-    
-    return new Promise(function(resolve, reject){
-        request(requestURL, function (error, response, body) {
-            var imageURLs = [];
-            if (!error) {
+    /**
+     * Returns random images URLS from an API
+     * @param string keyword-search term
+     * @param int imageCount - num of images
+     * @return array of images of URLs
+     */
+    getRandomImages_cb: function (keyword, imageCount, callback){
+        var requestURL = "https://api.unsplash.com/photos/random?query="+keyword+"&count="+imageCount+"&client_id=5991dbc45fea39d95fbd6f48422cc704fb11b861750959a6918de01df02e2174&orientation=landscape";
+        request(requestURL,function(error, response, body){
+            if(!error){
                 var parsedData = JSON.parse(body);
-                var errorParsedData = JSON.parse('{"errors:":["No photos found."]}');
-                
-                if (parsedData.error == "No Photos Found."){
-                    alert("Invalid search");
-                }else {
-                    if(imageURLs != null && parsedData[0].urls.regular != errorParsedData){
-                        //console.log("image url:", parsedData["urls"]["regular"]);
-                        for (let i = 0; i < imageCount; i++){
-                            imageURLs.push(parsedData[i].urls.regular);
-                        }
-                        //console.log(imageURLs);
-                        
-                        //return imageURLs;
-                        //callback(imageURLs);
-                        resolve(imageURLs);
-                    }
+                var imageURL = [];
+                for (let i = 0; i < imageCount; i++){
+                    imageURL.push(parsedData[i]['urls']['regular']);
                 }
-            }else {
-                console.log("error", error);
+                //console.log(imageURL);
+                callback(imageURL);
+            }else{
+                console.log("error: ",error);
             }
-        });
-        
-    });
-},
-
-/**
- * created database connection
- * @return db connection
- */
-createConnection: function(){
-    var conn = mysql.createConnection({
-        host: "cst336db.space",
-        user: "cst336_dbUser030",
-        password: "qq0mon",
-        database: "cst336_db030"
-    });
-    return conn;
-}
+        });//request   
     
+    },
+    
+    
+    /**
+     * Returns random images URLS from an API
+     * @param string keyword-search term
+     * @param int imageCount - num of images
+     * @return array of images of URLs
+     */
+    getRandomImages: function (keyword, imageCount){
+        var requestURL = "https://api.unsplash.com/photos/random?query="+keyword+"&count="+imageCount+"&client_id=350da2e9928b6801d2800e6135025b932dd9e408d07c90fb056d1f07a0c289bd";
+        return new Promise( function(resolve, reject){
+            var imageURL = [];
+             request(requestURL,function(error, response, body){
+                if(!error){
+                    var parsedData = JSON.parse(body);
+                    var errorParse = JSON.parse('{"errors:":["No photos found."]}');
+                    //console.log(errorParse);
+                    if (parsedData.errors != "No photos found."){
+                        if(imageURL != null && parsedData[0].urls.regular != errorParse){
+                        for (let i = 0; i < imageCount; i++){
+                        imageURL.push(parsedData[i].urls.regular);
+                        }
+                        resolve(imageURL);
+                    }
+                    else{
+                        alert("Invalid Search Result, please try again.");
+                        }
+                    
+                    }
+                }else{
+                    
+                    console.log("error: ",error);
+                }
+            });//request   
+        });//promise  
+        
+        
+        },
+     /**
+      * creates database connection
+      * @returns db connection
+      */
+    createConnection: function(){
+        var conn = mysql.createConnection({
+            host: "cst336db.space",
+            user: "cst336_dbUser030",
+            password: "qq0mon",
+            database: "cst336_db030"
+        });
+        return conn;
+    }  
+        
+        
 };
